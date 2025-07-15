@@ -1,0 +1,36 @@
+# OS・エディタ関連
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+
+# Node.js / React 共通
+frontend/node_modules/
+frontend/.env
+frontend/.env.*.local
+frontend/build/
+frontend/dist/
+
+# Go関連
+backend/tmp/
+backend/.air.toml
+backend/go.sum
+backend/go.mod # 任意。保持するなら除外しないでOK
+backend/vendor/
+backend/.env
+
+# Docker関連
+*.pid
+*.sock
+.env
+docker-compose.override.yml
+
+# VSCode
+.vscode/
+
+# その他
+*.sqlite3
+*.db
+*.out
+*.exe
+*.tar.gz

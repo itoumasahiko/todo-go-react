@@ -1,0 +1,47 @@
+import { useEffect, useState } from "react"
+import axios from "axios"
+
+type Todo = {
+  id: number
+  title: string
+}
+
+function App() {
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [input, setInput] = useState("")
+
+  useEffect(() => {
+    axios.get<Todo[]>("http://localhost:8080/api/todos").then(res => {
+      setTodos(res.data)
+    })
+  }, [])
+
+  const addTodo = () => {
+    if (!input.trim()) return
+    axios.post<Todo>("http://localhost:8080/api/todos", { title: input })
+      .then(res => {
+        setTodos([...todos, res.data])
+        setInput("")
+      })
+  }
+
+  return (
+    <div className="main">
+      <h1>ToDo アプリ (Go + React)</h1>
+      <p>Goで作成されたREST APIからToDoリストを取得し、Reactで表示・追加できるシンプルなサンプルアプリです。</p>
+      <ul>
+        {todos.map((todo: any) => (
+          <li key={todo.id}>{todo.title}</li>
+        ))}
+      </ul>
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        placeholder="新しいToDoを入力"
+      />
+      <button onClick={addTodo}>追加</button>
+    </div>
+  )
+}
+
+export default App
