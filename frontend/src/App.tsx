@@ -7,18 +7,19 @@ type Todo = {
 }
 
 function App() {
+  const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"
   const [todos, setTodos] = useState<Todo[]>([])
   const [input, setInput] = useState("")
 
   useEffect(() => {
-    axios.get<Todo[]>("http://localhost:8080/api/todos").then(res => {
+    axios.get<Todo[]>(`${API_BASE}/api/todos`).then(res => {
       setTodos(res.data)
     })
   }, [])
 
   const addTodo = () => {
     if (!input.trim()) return
-    axios.post<Todo>("http://localhost:8080/api/todos", { title: input })
+    axios.post<Todo>(`${API_BASE}/api/todos`, { title: input })
       .then(res => {
         setTodos([...todos, res.data])
         setInput("")
