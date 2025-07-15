@@ -82,7 +82,7 @@ func main() {
 		}
 	})
 	corsHandler := cors.New(cors.Options{
-        AllowedOrigins:   []string{"*"}, // 本番は特定のドメインに制限してください
+        AllowedOrigins:   []string{"*"},
         AllowedMethods:   []string{"GET", "POST", "DELETE", "OPTIONS"},
         AllowedHeaders:   []string{"Content-Type"},
         AllowCredentials: false,
