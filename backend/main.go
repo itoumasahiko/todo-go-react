@@ -5,6 +5,7 @@ import (
     "log"
     "net/http"
     "github.com/rs/cors"
+	"strconv"
 )
 
 type Todo struct {
@@ -39,20 +40,53 @@ func postTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newTodo)
 }
 
+func deleteTodo(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id == 0 {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	newTodos := []Todo{}
+	found := false
+	for _, t := range todos {
+		if t.ID != id {
+			newTodos = append(newTodos, t)
+		} else {
+			found = true
+		}
+	}
+	if !found {
+		http.Error(w, "Todo not found", http.StatusNotFound)
+		return
+	}
+
+	todos = newTodos
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func main() {
     mux := http.NewServeMux()
 
 	mux.HandleFunc("/api/todos", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
+		switch r.Method {
+		case http.MethodGet:
 			getTodos(w, r)
-		} else if r.Method == http.MethodPost {
+		case http.MethodPost:
 			postTodo(w, r)
-		} else {
+		case http.MethodDelete:
+			deleteTodo(w, r)
+		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})
-
-	handler := cors.Default().Handler(mux)
+	corsHandler := cors.New(cors.Options{
+        AllowedOrigins:   []string{"*"}, // 本番は特定のドメインに制限してください
+        AllowedMethods:   []string{"GET", "POST", "DELETE", "OPTIONS"},
+        AllowedHeaders:   []string{"Content-Type"},
+        AllowCredentials: false,
+    }).Handler(mux)
 	log.Println("Server started on :8080")
-	log.Fatal(http.ListenAndServe(":8080", handler))
+	log.Fatal(http.ListenAndServe(":8080", corsHandler))
 }

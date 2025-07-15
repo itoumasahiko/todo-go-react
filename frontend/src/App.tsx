@@ -26,13 +26,22 @@ function App() {
       })
   }
 
+  const deleteTodo = (id: number) => {
+    axios.delete(`${API_BASE}/api/todos`, { params: { id } })
+      .then(() => {
+        setTodos(todos.filter(todo => todo.id !== id));
+      });
+  };
+
   return (
     <div className="main">
       <h1>ToDo アプリ (Go + React)</h1>
-      <p>Goで作成されたREST APIからToDoリストを取得し、Reactで表示・追加できるシンプルなサンプルアプリです。</p>
+      <p>Goで作成されたREST APIからToDoリストを取得し、Reactで表示・追加・削除できるシンプルなサンプルアプリです。</p>
       <ul>
         {todos.map((todo: any) => (
-          <li key={todo.id}>{todo.title}</li>
+          <li key={todo.id}>{todo.title}
+            <button onClick={() => deleteTodo(todo.id)}>削除</button>
+          </li>
         ))}
       </ul>
       <input
