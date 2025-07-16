@@ -15,3 +15,8 @@ code {
 .main {
   padding: 10px;
 }
+
+.todo-list > li {
+  display: flex;
+  align-items: center;
+}

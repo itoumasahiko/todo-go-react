@@ -4,6 +4,7 @@ import axios from "axios"
 type Todo = {
   id: number
   title: string
+  completed: boolean
 }
 
 function App() {
@@ -33,13 +34,38 @@ function App() {
       });
   };
 
+  const toggleCompleted = async (id: number, completed: boolean) => {
+    try {
+      const res = await axios.patch<Todo>(`${API_BASE}/api/todos?id=${id}`, {
+        completed: !completed
+      })
+      const updated: Todo = res.data
+      setTodos(prev =>
+        prev.map(todo =>
+          todo.id === updated.id ? updated : todo
+        )
+      )
+    } catch (err) {
+      console.error("PATCHエラー:", err)
+    }
+  }
+
   return (
     <div className="main">
       <h1>ToDo アプリ (Go + React)</h1>
       <p>Goで作成されたREST APIからToDoリストを取得し、Reactで表示・追加・削除できるシンプルなサンプルアプリです。</p>
-      <ul>
+      <ul className="todo-list">
         {todos.map((todo: any) => (
-          <li key={todo.id}>{todo.title}
+          <li key={todo.id}>
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => toggleCompleted(todo.id, todo.completed)}
+            />
+            <span style={{
+              textDecoration: todo.completed ? "line-through" : "none",
+              marginLeft: "8px"
+            }}>{todo.title}</span>
             <button onClick={() => deleteTodo(todo.id)}>削除</button>
           </li>
         ))}

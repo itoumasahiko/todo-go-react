@@ -11,6 +11,7 @@ import (
 type Todo struct {
     ID    int    `json:"id"`
     Title string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
 var nextID = 3
@@ -66,6 +67,29 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func patchTodo(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, _ := strconv.Atoi(idStr)
+
+	var update struct {
+		Completed bool `json:"completed"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	for i, t := range todos {
+		if t.ID == id {
+			todos[i].Completed = update.Completed
+			json.NewEncoder(w).Encode(todos[i])
+			return
+		}
+	}
+
+	http.Error(w, "Not Found", http.StatusNotFound)
+}
+
 func main() {
     mux := http.NewServeMux()
 
@@ -77,13 +101,15 @@ func main() {
 			postTodo(w, r)
 		case http.MethodDelete:
 			deleteTodo(w, r)
+		case http.MethodPatch:
+			patchTodo(w, r)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})
 	corsHandler := cors.New(cors.Options{
         AllowedOrigins:   []string{"*"},
-        AllowedMethods:   []string{"GET", "POST", "DELETE", "OPTIONS"},
+        AllowedMethods:   []string{"GET", "POST", "DELETE", "OPTIONS", "PATCH"},
         AllowedHeaders:   []string{"Content-Type"},
         AllowCredentials: false,
     }).Handler(mux)
